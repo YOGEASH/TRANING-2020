@@ -72,6 +72,15 @@ A129|JOSEPH ANGELIN
 
 11)Display the Employee name,Employee count,Dep name,Dept manager in the Health department
 
+select name,COUNT(*),dep_name,dep_manager from employee inner join dept  using(dep_ID) GROUP BY DEP_NAME,NAME,DEP_MANAGER HAVING dep_name='HEALTH';
+
+BRAD MICHAEL|1|HEALTH|TIM ARCHER
+EDWARD CANE|1|HEALTH|TIM ARCHER
+JOHN HELLEN|1|HEALTH|TIM ARCHER
+MARTIN TREDEAU|1|HEALTH|TIM ARCHER
+PAUL VINCENT|1|HEALTH|TIM ARCHER
+TIM ARCHER|1|HEALTH|TIM ARCHER
+
 12)Display the Department id,Employee ids and Manager ids for the Communications department
 
 select dep_ID,E_ID,manager_ID from employee inner join dept using(dep_id) where dep_name='COMMUNICATIONS';
