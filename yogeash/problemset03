@@ -1,0 +1,167 @@
+yogeash.krishnaswamy@accenture.com
+1)Find the titles of all movies directed by Steven Spielberg
+
+select title from movie where director='Steven Spielberg';
+
+E.T.
+Raiders of the Lost Ark
+
+2)Find all years that have a movie that received a rating of 4 or 5, and sort them in increasing order
+
+select year,stars from movie inner join rating using(mid) where stars in(4,5) order by year ;
+
+1937|4
+1937|5
+1939|4
+1981|4
+1981|4
+2009|5
+
+3)Find the titles of all movies that have no ratings. 
+
+select title from movie where mid not in(select mid from rating);
+
+Star Wars
+Titanic
+
+4)Some reviewers didn't provide a date with their rating. Find the names of all reviewers who have ratings with a NULL value for the date.
+
+select name from reviewer where rid in (select rid from rating where ratingdate is null);
+
+Daniel Lewis
+Chris Jackson
+
+5)Write a query to return the ratings data in a more readable format: reviewer name, movie title, stars, and ratingDate. Also, sort the data, first by reviewer name, then by movie title, and lastly by number of stars.
+
+select name,title,stars,ratingDate from movie inner join rating using(mid) inner join reviewer using(rid) order by name,title,stars;
+
+Ashley White|E.T.|3|2011-01-02
+Brittany Harris|Raiders of the Lost Ark|2|2011-01-30
+Brittany Harris|Raiders of the Lost Ark|4|2011-01-12
+Brittany Harris|The Sound of Music|2|2011-01-20
+Chris Jackson|E.T.|2|2011-01-22
+Chris Jackson|Raiders of the Lost Ark|4|
+Chris Jackson|The Sound of Music|3|2011-01-27
+Daniel Lewis|Snow White|4|
+Elizabeth Thomas|Avatar|3|2011-01-15
+Elizabeth Thomas|Snow White|5|2011-01-19
+James Cameron|Avatar|5|2011-01-20
+Mike Anderson|Gone with the Wind|3|2011-01-09
+Sarah Martinez|Gone with the Wind|2|2011-01-22
+Sarah Martinez|Gone with the Wind|4|2011-01-27
+
+6)For all cases where the same reviewer rated the same movie twice and gave it a higher rating the second time, return the reviewer's name and the title of the movie.
+
+select distinct name,title from reviewer r inner join rating r1 on r.rid=r1.rid inner join movie m on m.mid=r1.mid where (r1.mid,r1.rid) in(select r2.mid,r2.rid from rating r2 group by r2.mid,r2.rid having count(r2.mid)>1 ) and r1.mid in (select r3.mid from rating r3 inner join rating r4 on r3.mid=r4.mid where r3.stars > r4.stars and r3.ratingdate>r4.ratingdate);
+
+Sarah Martinez|Gone with the Wind
+
+7)For each movie that has at least one rating, find the highest number of stars that movie received. Return the movie title and number of stars. Sort by movie title
+
+select title,max(stars) from rating inner join movie using(mid) group by title order by title;
+
+Avatar|5
+E.T.|3
+Gone with the Wind|4
+Raiders of the Lost Ark|4
+Snow White|5
+The Sound of Music|3
+
+8)For each movie, return the title and the 'rating spread', that is, the difference between highest and lowest ratings given to that movie. Sort by rating spread from highest to lowest, then by movie title.
+
+9)Find the difference between the average rating of movies released before 1980 and the average rating of movies released after 1980. (Make sure to calculate the average rating for each movie, then the average of those averages for movies before 1980 and movies after. Don't just calculate the overall average rating before and after 1980.)
+
+10)Find the names of all reviewers who rated Gone with the Wind. 
+
+select  distinct name from reviewer inner join rating using(rid) inner join movie using(mid) where title='Gone with the Wind';
+
+Sarah Martinez
+Mike Anderson
+
+11)For any rating where the reviewer is the same as the director of the movie, return the reviewer name, movie title, and number of stars.
+
+select  distinct title,name,stars from reviewer inner join rating using(rid) inner join movie using(mid) where  reviewer.name=movie.director;
+
+Avatar|James Cameron|5
+
+12)Return all reviewer names and movie names together in a single list, alphabetized. (Sorting by the first name of the reviewer and first word in the title is fine; no need for special processing on last names or removing "The".)
+
+select  distinct title,name from reviewer inner join rating using(rid) inner join movie using(mid) order by name,title;
+
+E.T.|Ashley White
+Raiders of the Lost Ark|Brittany Harris
+The Sound of Music|Brittany Harris
+E.T.|Chris Jackson
+Raiders of the Lost Ark|Chris Jackson
+The Sound of Music|Chris Jackson
+Snow White|Daniel Lewis
+Avatar|Elizabeth Thomas
+Snow White|Elizabeth Thomas
+Avatar|James Cameron
+Gone with the Wind|Mike Anderson
+Gone with the Wind|Sarah Martinez
+
+13)Find the titles of all movies not reviewed by Chris Jackson. 
+
+select title from movie where title not in (select title from rating inner join movie using(mid) where rid=(select rid from reviewer where name='Chris Jackson'));
+
+Gone with the Wind
+Star Wars
+Titanic
+Snow White
+Avatar
+
+15)For each rating that is the lowest (fewest stars) currently in the database, return the reviewer name, movie title, and number of stars.
+
+select name,title,min(stars) from reviewer inner join rating using(rid) inner join movie using(mid);
+
+Sarah Martinez|Gone with the Wind|2
+
+16)List movie titles and average ratings, from highest-rated to lowest-rated. If two or more movies have the same average rating, list them in alphabetical order.
+
+select title,round(avg(stars)) from rating inner join movie using(mid) group by title order by avg(stars) desc,title;
+
+Snow White|5.0
+Avatar|4.0
+Raiders of the Lost Ark|3.0
+Gone with the Wind|3.0
+E.T.|3.0
+The Sound of Music|3.0
+
+17)Find the names of all reviewers who have contributed three or more ratings. (As an extra challenge, try writing the query without HAVING or without COUNT.)
+
+select name from rating inner join reviewer using(rid) group by name having count(name)>=3;
+
+Brittany Harris
+Chris Jackson
+
+18)Some directors directed more than one movie. For all such directors, return the titles of all movies directed by them, along with the director name. Sort by director name, then movie title. (As an extra challenge, try writing the query both with and without COUNT.)
+
+select director,title from movie where director in (select director from movie group by director having count(director)>1) order by director,title;
+
+James Cameron|Avatar
+James Cameron|Titanic
+Steven Spielberg|E.T.
+Steven Spielberg|Raiders of the Lost Ark
+
+19)Find the movie(s) with the highest average rating. Return the movie title(s) and average rating. (Hint: This query is more difficult to write in SQLite than other systems; you might think of it as finding the highest average rating and then choosing the movie(s) with that average rating.) 
+
+select title,max(average) from (select title,round(avg(stars)) as average from rating inner join movie using(mid) group by title);
+
+Snow White|5.0
+
+20)Find the movie(s) with the lowest average rating. Return the movie title(s) and average rating. (Hint: This query may be more difficult to write in SQLite than other systems; you might think of it as finding the lowest average rating and then choosing the movie(s) with that average rating.)
+
+select title,min(average) from (select title,round(avg(stars)) as average from rating inner join movie using(mid) group by title);
+
+E.T.|3.0
+
+21)For each director, return the director's name together with the title(s) of the movie(s) they directed that received the highest rating among all of their movies, and the value of that rating. Ignore movies whose director is NULL.
+
+select director,title from movie inner join rating using(mid) group by director having max(stars) and director is not null;
+
+James Cameron|Avatar
+Robert Wise|The Sound of Music
+Steven Spielberg|Raiders of the Lost Ark
+Victor Fleming|Gone with the Wind
+
